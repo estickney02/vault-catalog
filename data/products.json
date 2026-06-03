@@ -1,0 +1,68 @@
+[
+  {
+    "id": "1",
+    "name": "Oversized Camel Wool Coat",
+    "brand": "Loro Piana",
+    "type": "Outerwear",
+    "description": "Luxuriously oversized wool-blend coat in classic camel. Double-breasted silhouette with notched lapels and wide sleeves. A true wardrobe anchor that works with everything from tailored trousers to wide-leg denim.",
+    "link": "https://www.kakobuy.com",
+    "images": [],
+    "featured": true,
+    "createdAt": "2024-01-10T00:00:00.000Z"
+  },
+  {
+    "id": "2",
+    "name": "Mini Le Chiquito Bag",
+    "brand": "Jacquemus",
+    "type": "Bags",
+    "description": "The iconic micro bag in buttery smooth leather. Structured baguette shape with a top handle and removable crossbody strap. Available in multiple colorways. Statement piece, always.",
+    "link": "https://www.kakobuy.com",
+    "images": [],
+    "featured": true,
+    "createdAt": "2024-01-12T00:00:00.000Z"
+  },
+  {
+    "id": "3",
+    "name": "Tabis Split-Toe Ballet Flats",
+    "brand": "Maison Margiela",
+    "type": "Shoes",
+    "description": "The unmistakable Tabi split-toe silhouette in supple leather. Low kitten heel, almond toe, and that signature cloven hoof finish. Equal parts avant-garde and wearable.",
+    "link": "https://www.kakobuy.com",
+    "images": [],
+    "featured": true,
+    "createdAt": "2024-01-14T00:00:00.000Z"
+  },
+  {
+    "id": "4",
+    "name": "Cargo Wide-Leg Trousers",
+    "brand": "Acne Studios",
+    "type": "Bottoms",
+    "description": "Relaxed wide-leg trousers in a heavy cotton twill. Utility-inspired with side cargo pockets, an elasticated waist, and a clean draped hem. Wear low and loose.",
+    "link": "https://www.kakobuy.com",
+    "images": [],
+    "featured": true,
+    "createdAt": "2024-01-16T00:00:00.000Z"
+  },
+  {
+    "id": "5",
+    "name": "Ribbed Cashmere Tank",
+    "brand": "The Row",
+    "type": "Tops",
+    "description": "Ultra-fine ribbed cashmere tank in a slim, elongated silhouette. Subtle scoop neck, clean edges — no branding, just quality. Tuck into high-waist skirts or layer under coats.",
+    "link": "https://www.kakobuy.com",
+    "images": [],
+    "featured": true,
+    "createdAt": "2024-01-18T00:00:00.000Z"
+  },
+  {
+    "id": "6",
+    "name": "Chain-Link Layered Necklace",
+    "brand": "Bottega Veneta",
+    "type": "Jewelry",
+    "description": "Chunky sterling silver chain with an oxidized finish. Substantial weight, architectural links. Goes as well with a silk slip as it does a leather jacket.",
+    "link": "https://www.kakobuy.com",
+    "images": [],
+    "featured": true,
+    "createdAt": "2024-01-20T00:00:00.000Z"
+  }
+]
