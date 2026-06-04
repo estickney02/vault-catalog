@@ -11,10 +11,10 @@ export default function Footer() {
               href="/"
               className="text-xl font-bold tracking-[0.3em] text-v-text hover:text-v-gold transition-colors"
             >
-              VAULTED
+              EMONEYFINDS
             </Link>
             <p className="mt-3 text-v-muted text-sm leading-relaxed">
-              The vault is open.
+              The finds are here.
               <br />
               Hand-picked designer reps and quality finds, all in one place.
             </p>
@@ -59,7 +59,7 @@ export default function Footer() {
 
         <div className="border-t border-v-border pt-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <p className="text-v-muted text-xs">
-            © {new Date().getFullYear()} VAULTED. All rights reserved.
+            © {new Date().getFullYear()} EMONEYFINDS. All rights reserved.
           </p>
           <p className="text-v-muted text-xs max-w-md text-right leading-relaxed">
             Some links on this site are affiliate links. We may earn a commission at no extra cost to

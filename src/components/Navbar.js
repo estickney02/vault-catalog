@@ -15,7 +15,7 @@ export default function Navbar() {
             href="/"
             className="text-xl font-bold tracking-[0.3em] text-v-text hover:text-v-gold transition-colors duration-200"
           >
-            VAULTED
+            EMONEYFINDS
           </Link>
 
           {/* Desktop nav */}

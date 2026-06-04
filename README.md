@@ -1,4 +1,4 @@
-# VAULTED — Fashion Catalog
+# EMONEYFINDS — Fashion Catalog
 
 A dark, minimal fashion product catalog site for a KakoBuy rep/finds business. Built with Next.js 14 and Tailwind CSS.
 

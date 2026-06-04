@@ -34,7 +34,7 @@ export default function FloatingRegisterCTA() {
         <div className="min-w-0">
           <p className="text-[11px] font-bold tracking-widest uppercase">New to KakoBuy?</p>
           <p className="text-xs font-medium truncate opacity-80">
-            Register free through our link — supports VAULTED ◆
+            Register free through our link — supports EMONEYFINDS ◆
           </p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">

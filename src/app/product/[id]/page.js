@@ -16,9 +16,9 @@ async function getProduct(id) {
 
 export async function generateMetadata({ params }) {
   const product = await getProduct(params.id)
-  if (!product) return { title: 'Not Found — VAULTED' }
+  if (!product) return { title: 'Not Found — EMONEYFINDS' }
   return {
-    title: `${product.name} — VAULTED`,
+    title: `${product.name} — EMONEYFINDS`,
     description: product.description,
   }
 }

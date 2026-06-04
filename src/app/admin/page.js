@@ -47,7 +47,7 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-10">
           <p className="section-label mb-3">Admin Access</p>
-          <h1 className="text-3xl font-bold tracking-[0.2em]">VAULTED</h1>
+          <h1 className="text-3xl font-bold tracking-[0.2em]">EMONEYFINDS</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">

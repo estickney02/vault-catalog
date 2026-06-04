@@ -16,7 +16,7 @@ export default function RegisterSection() {
           {/* Text side */}
           <div className="flex flex-col gap-6">
             <div>
-              <p className="section-label mb-3">Support VAULTED</p>
+              <p className="section-label mb-3">Support EMONEYFINDS</p>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight leading-tight">
                 Register on KakoBuy<br />
                 <span className="text-v-gold">through our link.</span>
@@ -26,7 +26,7 @@ export default function RegisterSection() {
             <p className="text-v-muted text-base leading-relaxed">
               KakoBuy is the platform where every product on this site is sourced from.
               Creating a free account through our link costs you <span className="text-v-text font-medium">nothing</span> — but
-              it&apos;s the single biggest way to support VAULTED and keep this catalog running.
+              it&apos;s the single biggest way to support EMONEYFINDS and keep this catalog running.
             </p>
 
             <ul className="flex flex-col gap-3">
@@ -83,7 +83,7 @@ export default function RegisterSection() {
                 Why register?
               </p>
               <p className="text-v-muted text-xs leading-relaxed">
-                Every registration through our link directly funds VAULTED — no ads, no paywalls, just the finds.
+                Every registration through our link directly funds EMONEYFINDS — no ads, no paywalls, just the finds.
               </p>
             </div>
           </div>

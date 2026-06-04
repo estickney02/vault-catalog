@@ -4,12 +4,12 @@ export default function Marquee() {
     'KAKOBUY CURATED',
     'SHOP SMARTER',
     'QUALITY OVER QUANTITY',
-    'VAULTED APPROVED',
+    'EMONEYFINDS APPROVED',
     'NEW ARRIVALS',
     'ELEVATED BASICS',
     'DESIGNER INSPIRED',
     'HAND SELECTED',
-    'VAULTED PICKS',
+    'EMONEYFINDS PICKS',
   ]
 
   const content = items.map((item, i) => (

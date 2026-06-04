@@ -53,11 +53,11 @@ export default async function HomePage() {
           <p className="section-label">Est. 2024</p>
 
           <h1 className="text-[clamp(4rem,15vw,10rem)] font-bold tracking-[0.15em] leading-none text-v-text">
-            VAULTED
+            EMONEYFINDS
           </h1>
 
           <p className="text-v-muted text-lg md:text-xl tracking-widest font-light uppercase">
-            The vault is open.
+            The finds are here.
           </p>
 
           <p className="text-v-muted/60 text-sm max-w-sm leading-relaxed mt-2">
@@ -79,7 +79,7 @@ export default async function HomePage() {
             </a>
           </div>
           <p className="text-v-muted/50 text-xs mt-2 tracking-wide">
-            New to KakoBuy? Register free through our link to support VAULTED.
+            New to KakoBuy? Register free through our link to support EMONEYFINDS.
           </p>
         </div>
 

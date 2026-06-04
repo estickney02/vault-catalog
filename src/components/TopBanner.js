@@ -28,7 +28,7 @@ export default function TopBanner() {
             ◆ New to KakoBuy?
           </span>
           <p className="text-xs sm:text-[13px] font-medium truncate">
-            Register through our link — it&apos;s free, takes 10 seconds, and directly supports VAULTED.
+            Register through our link — it&apos;s free, takes 10 seconds, and directly supports EMONEYFINDS.
           </p>
         </div>
 

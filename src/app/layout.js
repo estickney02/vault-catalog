@@ -12,7 +12,7 @@ const inter = Inter({
 })
 
 export const metadata = {
-  title: 'VAULTED — The vault is open.',
+  title: 'EMONEYFINDS — The finds are here.',
   description: 'Curated designer finds and reps. Shop the best KakoBuy picks, hand-selected for quality and style.',
   keywords: 'vault, reps, finds, kakobuy, designer, fashion, curated',
 }

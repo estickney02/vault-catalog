@@ -11,7 +11,7 @@ export default function ImageCarousel({ images, alt }) {
     return (
       <div className="aspect-square w-full img-placeholder flex items-center justify-center">
         <span className="text-[3rem] tracking-[0.3em] font-bold text-v-border select-none">
-          VAULTED
+          EMONEYFINDS
         </span>
       </div>
     )

@@ -20,7 +20,7 @@ export default function ProductCard({ product }) {
         ) : (
           <div className="w-full h-full img-placeholder flex items-center justify-center">
             <span className="text-[2rem] tracking-[0.3em] font-bold text-v-border select-none">
-              VAULTED
+              EMONEYFINDS
             </span>
           </div>
         )}
