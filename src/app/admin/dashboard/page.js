@@ -368,6 +368,216 @@ function BrandsTab({ token }) {
   )
 }
 
+/* ─── BULK IMPORT TAB ────────────────────────────── */
+function BulkImportTab({ token }) {
+  const [rows,      setRows]      = useState([])   // parsed CSV rows
+  const [selected,  setSelected]  = useState({})   // id → bool
+  const [importing, setImporting] = useState(false)
+  const [result,    setResult]    = useState(null)  // { success, skipped }
+  const [toast,     setToast]     = useState(null)
+  const fileRef = useRef(null)
+
+  const headers = { 'x-admin-token': token }
+
+  const parseCSV = (text) => {
+    const lines = text.trim().split('\n')
+    if (lines.length < 2) return []
+    const header = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g,'').toLowerCase())
+    return lines.slice(1).map((line, i) => {
+      // handle quoted fields with commas inside
+      const cols = []
+      let cur = '', inQ = false
+      for (const ch of line) {
+        if (ch === '"') { inQ = !inQ }
+        else if (ch === ',' && !inQ) { cols.push(cur); cur = '' }
+        else cur += ch
+      }
+      cols.push(cur)
+      const obj = { _id: i }
+      header.forEach((h, idx) => { obj[h] = (cols[idx] || '').trim().replace(/^"|"$/g,'') })
+      // normalise column names
+      obj.name        = obj.name        || ''
+      obj.brand       = obj.brand       || ''
+      obj.type        = obj.category    || obj.type || ''
+      obj.description = obj.description || ''
+      obj.link        = obj.kakobuy_link|| obj.link || ''
+      obj.images      = obj.image_url   ? [obj.image_url] : []
+      obj.price       = obj.price       || ''
+      obj.featured    = (obj.featured||'').toLowerCase() === 'true'
+      obj._error      = !obj.name || !obj.link
+      return obj
+    }).filter(r => Object.values(r).some(v => v)) // drop blank rows
+  }
+
+  const onFile = (e) => {
+    const file = e.target.files?.[0]; if (!file) return
+    setResult(null)
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const parsed = parseCSV(ev.target.result)
+      setRows(parsed)
+      const sel = {}
+      parsed.forEach(r => { if (!r._error) sel[r._id] = true })
+      setSelected(sel)
+    }
+    reader.readAsText(file)
+    if (fileRef.current) fileRef.current.value = ''
+  }
+
+  const toggle = (id) => setSelected(s => ({ ...s, [id]: !s[id] }))
+  const toggleAll = () => {
+    const validIds = rows.filter(r => !r._error).map(r => r._id)
+    const allOn = validIds.every(id => selected[id])
+    const next = { ...selected }
+    validIds.forEach(id => { next[id] = !allOn })
+    setSelected(next)
+  }
+
+  const importAll = async () => {
+    setImporting(true); setResult(null)
+    const toImport = rows.filter(r => selected[r._id] && !r._error)
+    let success = 0
+    for (const row of toImport) {
+      try {
+        const res = await fetch('/api/products', {
+          method: 'POST',
+          headers: { ...headers, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: row.name, brand: row.brand, type: row.type,
+            description: row.description, link: row.link,
+            images: row.images, price: row.price, featured: row.featured,
+          })
+        })
+        if (res.ok) success++
+      } catch {}
+    }
+    setImporting(false)
+    setResult({ success, skipped: toImport.length - success })
+    setRows([]); setSelected({})
+  }
+
+  const selectedCount = rows.filter(r => selected[r._id] && !r._error).length
+  const errorCount    = rows.filter(r => r._error).length
+
+  return (
+    <div>
+      {toast && <Toast msg={toast.msg} isError={toast.isError} onDone={() => setToast(null)} />}
+
+      <div className="mb-8">
+        <h3 className="font-display font-semibold text-base tracking-wide mb-1">Bulk Import Products</h3>
+        <p className="font-display text-xs text-emf-muted">Upload a CSV file to import multiple products at once.</p>
+      </div>
+
+      {/* CSV format guide */}
+      <div className="mb-6 bg-emf-surface border border-emf-border p-4">
+        <p className="font-display text-xs font-semibold text-emf-black mb-2 tracking-wide uppercase">Expected CSV Columns</p>
+        <code className="font-mono text-[11px] text-emf-muted break-all">
+          name, brand, category, description, kakobuy_link, price, image_url, featured
+        </code>
+        <p className="font-display text-[10px] text-emf-muted mt-2">* <strong>name</strong> and <strong>kakobuy_link</strong> are required. All other columns are optional.</p>
+      </div>
+
+      {/* Upload */}
+      <div className="mb-6">
+        <input type="file" accept=".csv" ref={fileRef} onChange={onFile} className="hidden" id="csv-upload" />
+        <label htmlFor="csv-upload" className="btn-outline inline-block cursor-pointer">
+          📂 Choose CSV File
+        </label>
+      </div>
+
+      {/* Result banner */}
+      {result && (
+        <div className="mb-6 bg-emf-pink/10 border border-emf-pink/30 px-5 py-4 font-display text-sm text-emf-black">
+          ✅ <strong>{result.success} product{result.success !== 1 ? 's' : ''} imported successfully</strong>
+          {result.skipped > 0 && <span className="text-emf-muted ml-2">({result.skipped} failed)</span>}
+          <span className="block text-[11px] text-emf-muted mt-1">Products are now live on the site.</span>
+        </div>
+      )}
+
+      {/* Preview table */}
+      {rows.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-4">
+              <p className="font-display text-sm font-semibold">
+                {rows.length} rows detected
+                {errorCount > 0 && <span className="text-red-500 ml-2">· {errorCount} with errors</span>}
+              </p>
+              <button onClick={toggleAll} className="font-display text-xs text-emf-muted hover:text-emf-black underline underline-offset-2 transition-colors">
+                {rows.filter(r=>!r._error).every(r=>selected[r._id]) ? 'Deselect All' : 'Select All'}
+              </button>
+            </div>
+            <button
+              onClick={importAll}
+              disabled={importing || selectedCount === 0}
+              className="btn-pink disabled:opacity-40"
+            >
+              {importing ? 'Importing…' : `Import ${selectedCount} Product${selectedCount !== 1 ? 's' : ''}`}
+            </button>
+          </div>
+
+          <div className="border border-emf-border overflow-x-auto">
+            <table className="w-full text-left">
+              <thead className="bg-emf-surface border-b border-emf-border">
+                <tr>
+                  <th className="px-3 py-2 w-8"></th>
+                  <th className="px-3 py-2 font-display text-[10px] tracking-widest uppercase text-emf-muted">Name</th>
+                  <th className="px-3 py-2 font-display text-[10px] tracking-widest uppercase text-emf-muted">Brand</th>
+                  <th className="px-3 py-2 font-display text-[10px] tracking-widest uppercase text-emf-muted">Category</th>
+                  <th className="px-3 py-2 font-display text-[10px] tracking-widest uppercase text-emf-muted">Price</th>
+                  <th className="px-3 py-2 font-display text-[10px] tracking-widest uppercase text-emf-muted">Link</th>
+                  <th className="px-3 py-2 font-display text-[10px] tracking-widest uppercase text-emf-muted">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map(row => (
+                  <tr key={row._id}
+                    className={`border-b border-emf-border last:border-0 transition-colors ${
+                      row._error ? 'bg-red-50' : selected[row._id] ? 'bg-white' : 'bg-emf-surface/50 opacity-50'
+                    }`}
+                  >
+                    <td className="px-3 py-2">
+                      {!row._error && (
+                        <div onClick={() => toggle(row._id)}
+                          className={`w-4 h-4 border-2 flex items-center justify-center cursor-pointer transition-colors ${selected[row._id] ? 'bg-emf-pink border-emf-pink' : 'border-emf-border hover:border-emf-pink'}`}>
+                          {selected[row._id] && <span className="text-white text-[9px] font-bold leading-none">✓</span>}
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-3 py-2 font-display text-xs text-emf-black max-w-[160px] truncate">{row.name || <span className="text-red-400 italic">missing</span>}</td>
+                    <td className="px-3 py-2 font-display text-xs text-emf-muted">{row.brand}</td>
+                    <td className="px-3 py-2 font-display text-xs text-emf-muted">{row.type}</td>
+                    <td className="px-3 py-2 font-display text-xs text-emf-muted">{row.price}</td>
+                    <td className="px-3 py-2 font-display text-xs text-emf-muted max-w-[160px] truncate">
+                      {row.link ? <span className="text-emf-pink-dk">{row.link}</span> : <span className="text-red-400 italic">missing</span>}
+                    </td>
+                    <td className="px-3 py-2">
+                      {row._error
+                        ? <span className="font-display text-[10px] text-red-500 bg-red-100 px-2 py-0.5">Error — will skip</span>
+                        : <span className="font-display text-[10px] text-emf-pink bg-emf-pink/10 px-2 py-0.5">Ready</span>
+                      }
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-4 flex justify-end">
+            <button
+              onClick={importAll}
+              disabled={importing || selectedCount === 0}
+              className="btn-pink disabled:opacity-40"
+            >
+              {importing ? 'Importing…' : `Import ${selectedCount} Product${selectedCount !== 1 ? 's' : ''}`}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 /* ─── SETTINGS TAB ────────────────────────────────── */
 function SettingsTab({ token }) {
   const [settings, setSettings] = useState({ kakobuyLink:'', instagramUrl:'', tiktokUrl:'' })
@@ -437,9 +647,10 @@ export default function AdminDashboard() {
   if (!token) return null
 
   const tabs = [
-    { id:'products', label:'Products' },
-    { id:'brands',   label:'Brands'   },
-    { id:'settings', label:'Settings' },
+    { id:'products', label:'Products'    },
+    { id:'brands',   label:'Brands'      },
+    { id:'bulk',     label:'Bulk Import' },
+    { id:'settings', label:'Settings'    },
   ]
 
   return (
@@ -470,9 +681,10 @@ export default function AdminDashboard() {
 
       {/* Tab content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {tab === 'products' && <ProductsTab token={token} />}
-        {tab === 'brands'   && <BrandsTab   token={token} />}
-        {tab === 'settings' && <SettingsTab token={token} />}
+        {tab === 'products' && <ProductsTab    token={token} />}
+        {tab === 'brands'   && <BrandsTab      token={token} />}
+        {tab === 'bulk'     && <BulkImportTab  token={token} />}
+        {tab === 'settings' && <SettingsTab    token={token} />}
       </div>
     </div>
   )

@@ -20,7 +20,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'No files provided' }, { status: 400 })
     }
 
-    const allowedExts = ['.jpg', '.jpeg', '.png', '.webp', '.gif']
+    const allowedExts = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif', '.heic', '.heif']
     const savedPaths  = []
 
     for (const file of files) {
