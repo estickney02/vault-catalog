@@ -379,34 +379,77 @@ function BulkImportTab({ token }) {
 
   const headers = { 'x-admin-token': token }
 
+  // Split a CSV line respecting quoted fields (handles commas inside quotes)
+  const splitLine = (line) => {
+    const cols = []; let cur = '', inQ = false
+    for (const ch of line) {
+      if (ch === '"') { inQ = !inQ }
+      else if (ch === ',' && !inQ) { cols.push(cur); cur = '' }
+      else cur += ch
+    }
+    cols.push(cur)
+    return cols.map(c => c.trim().replace(/^"|"$/g, ''))
+  }
+
+  // Known category/section header words to skip
+  const SKIP_WORDS = new Set(['shoes','tops','t-shirts','jacket','skirts','bags','sweaters','shorts','perfume','shirts/polo','hoodies','electronics','dresses','pants','accessories','alo','lululemon','zara','image','sign up link for coupons'])
+
   const parseCSV = (text) => {
-    const lines = text.trim().split('\n')
+    // Collapse multi-line quoted cells first
+    const normalized = text.replace(/"[^"]*"/g, m => m.replace(/\n/g, ' '))
+    const lines = normalized.trim().split('\n')
     if (lines.length < 2) return []
-    const header = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g,'').toLowerCase())
-    return lines.slice(1).map((line, i) => {
-      // handle quoted fields with commas inside
-      const cols = []
-      let cur = '', inQ = false
-      for (const ch of line) {
-        if (ch === '"') { inQ = !inQ }
-        else if (ch === ',' && !inQ) { cols.push(cur); cur = '' }
-        else cur += ch
+
+    // Find the header row — look for a row containing 'product' or 'name'
+    let headerIdx = 0
+    for (let i = 0; i < Math.min(lines.length, 15); i++) {
+      const lower = lines[i].toLowerCase()
+      if (lower.includes('product') || lower.includes('name')) { headerIdx = i; break }
+    }
+    const rawHeader = splitLine(lines[headerIdx]).map(h => h.toLowerCase())
+
+    // Map flexible column names → standard keys
+    const colMap = {}
+    rawHeader.forEach((h, idx) => {
+      if (/^name$|^product/.test(h))             colMap.name  = idx
+      if (/^brand/.test(h))                       colMap.brand = idx
+      if (/^categor|^type/.test(h))               colMap.type  = idx
+      if (/^desc/.test(h))                        colMap.description = idx
+      if (/kakobuy|^link$/.test(h))               colMap.link  = idx
+      if (/price.*usd|^price$/.test(h))           colMap.price = idx
+      if (/image_url|image url/.test(h))          colMap.image = idx
+      if (/^featured/.test(h))                    colMap.featured = idx
+    })
+
+    return lines.slice(headerIdx + 1).map((line, i) => {
+      const cols = splitLine(line)
+      const get  = (key) => (cols[colMap[key]] || '').trim()
+
+      const name  = get('name')
+      const price = get('price')
+      const rawLink = get('link')
+      // If link is literally "LINK" or "link", treat as empty (was a hyperlink in spreadsheet)
+      const link  = /^link$/i.test(rawLink) ? '' : rawLink
+
+      // Skip blank rows and category header rows
+      if (!name) return null
+      if (SKIP_WORDS.has(name.toLowerCase())) return null
+      if (cols.every(c => !c)) return null
+
+      return {
+        _id:         i,
+        name,
+        brand:       get('brand'),
+        type:        get('type'),
+        description: get('description'),
+        link,
+        price,
+        images:      get('image') ? [get('image')] : [],
+        featured:    get('featured').toLowerCase() === 'true',
+        _error:      !name,  // only require name — link can be added later
+        _noLink:     !link,  // flag for missing link (warning, not error)
       }
-      cols.push(cur)
-      const obj = { _id: i }
-      header.forEach((h, idx) => { obj[h] = (cols[idx] || '').trim().replace(/^"|"$/g,'') })
-      // normalise column names
-      obj.name        = obj.name        || ''
-      obj.brand       = obj.brand       || ''
-      obj.type        = obj.category    || obj.type || ''
-      obj.description = obj.description || ''
-      obj.link        = obj.kakobuy_link|| obj.link || ''
-      obj.images      = obj.image_url   ? [obj.image_url] : []
-      obj.price       = obj.price       || ''
-      obj.featured    = (obj.featured||'').toLowerCase() === 'true'
-      obj._error      = !obj.name || !obj.link
-      return obj
-    }).filter(r => Object.values(r).some(v => v)) // drop blank rows
+    }).filter(Boolean)
   }
 
   const onFile = (e) => {
@@ -417,7 +460,7 @@ function BulkImportTab({ token }) {
       const parsed = parseCSV(ev.target.result)
       setRows(parsed)
       const sel = {}
-      parsed.forEach(r => { if (!r._error) sel[r._id] = true })
+      parsed.forEach(r => { sel[r._id] = true }) // select all by default, including no-link rows
       setSelected(sel)
     }
     reader.readAsText(file)
@@ -458,6 +501,7 @@ function BulkImportTab({ token }) {
 
   const selectedCount = rows.filter(r => selected[r._id] && !r._error).length
   const errorCount    = rows.filter(r => r._error).length
+  const noLinkCount   = rows.filter(r => !r._error && r._noLink).length
 
   return (
     <div>
@@ -470,11 +514,11 @@ function BulkImportTab({ token }) {
 
       {/* CSV format guide */}
       <div className="mb-6 bg-emf-surface border border-emf-border p-4">
-        <p className="font-display text-xs font-semibold text-emf-black mb-2 tracking-wide uppercase">Expected CSV Columns</p>
+        <p className="font-display text-xs font-semibold text-emf-black mb-2 tracking-wide uppercase">Supported CSV Columns</p>
         <code className="font-mono text-[11px] text-emf-muted break-all">
-          name, brand, category, description, kakobuy_link, price, image_url, featured
+          name / product, brand, category / type, description, kakobuy_link / link, price, image_url, featured
         </code>
-        <p className="font-display text-[10px] text-emf-muted mt-2">* <strong>name</strong> and <strong>kakobuy_link</strong> are required. All other columns are optional.</p>
+        <p className="font-display text-[10px] text-emf-muted mt-2">* Only <strong>name/product</strong> is required. Products without a link will be imported and can be edited later. Works with spreadsheet exports (Google Sheets, Excel).</p>
       </div>
 
       {/* Upload */}
@@ -501,7 +545,8 @@ function BulkImportTab({ token }) {
             <div className="flex items-center gap-4">
               <p className="font-display text-sm font-semibold">
                 {rows.length} rows detected
-                {errorCount > 0 && <span className="text-red-500 ml-2">· {errorCount} with errors</span>}
+                {errorCount > 0  && <span className="text-red-500 ml-2">· {errorCount} skipped (no name)</span>}
+              {noLinkCount > 0 && <span className="text-amber-500 ml-2">· {noLinkCount} missing KakoBuy link</span>}
               </p>
               <button onClick={toggleAll} className="font-display text-xs text-emf-muted hover:text-emf-black underline underline-offset-2 transition-colors">
                 {rows.filter(r=>!r._error).every(r=>selected[r._id]) ? 'Deselect All' : 'Select All'}
@@ -533,7 +578,7 @@ function BulkImportTab({ token }) {
                 {rows.map(row => (
                   <tr key={row._id}
                     className={`border-b border-emf-border last:border-0 transition-colors ${
-                      row._error ? 'bg-red-50' : selected[row._id] ? 'bg-white' : 'bg-emf-surface/50 opacity-50'
+                      row._error ? 'bg-red-50' : row._noLink && selected[row._id] ? 'bg-amber-50' : selected[row._id] ? 'bg-white' : 'bg-emf-surface/50 opacity-50'
                     }`}
                   >
                     <td className="px-3 py-2">
@@ -553,8 +598,10 @@ function BulkImportTab({ token }) {
                     </td>
                     <td className="px-3 py-2">
                       {row._error
-                        ? <span className="font-display text-[10px] text-red-500 bg-red-100 px-2 py-0.5">Error — will skip</span>
-                        : <span className="font-display text-[10px] text-emf-pink bg-emf-pink/10 px-2 py-0.5">Ready</span>
+                        ? <span className="font-display text-[10px] text-red-500 bg-red-100 px-2 py-0.5">Skipped — no name</span>
+                        : row._noLink
+                          ? <span className="font-display text-[10px] text-amber-600 bg-amber-100 px-2 py-0.5">No link yet</span>
+                          : <span className="font-display text-[10px] text-emf-pink bg-emf-pink/10 px-2 py-0.5">Ready</span>
                       }
                     </td>
                   </tr>
