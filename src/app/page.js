@@ -1,20 +1,16 @@
 import Link          from 'next/link'
-import fs            from 'fs'
-import path          from 'path'
 import Marquee       from '@/components/Marquee'
 import ProductCard   from '@/components/ProductCard'
 import HeroCarousel  from '@/components/HeroCarousel'
 import HowItWorks    from '@/components/HowItWorks'
 import CategoryGrid  from '@/components/CategoryGrid'
 import BrandGrid     from '@/components/BrandGrid'
+import { readJson }  from '@/lib/blobDb'
 
-function getProducts() {
-  try { return JSON.parse(fs.readFileSync(path.join(process.cwd(),'data/products.json'),'utf8')) }
-  catch { return [] }
-}
+export const revalidate = 0
 
-export default function HomePage() {
-  const all        = getProducts()
+export default async function HomePage() {
+  const all        = await readJson('products', [])
   const sorted     = [...all].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))
   const featured   = all.filter(p => p.featured).slice(0, 8)
   const newArrivals = sorted.slice(0, 8)

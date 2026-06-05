@@ -1,22 +1,6 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
-
-const DB_PATH = path.join(process.cwd(), 'data/products.json')
-
-function readProducts() {
-  try {
-    const data = fs.readFileSync(DB_PATH, 'utf8')
-    return JSON.parse(data)
-  } catch {
-    return []
-  }
-}
-
-function writeProducts(products) {
-  fs.writeFileSync(DB_PATH, JSON.stringify(products, null, 2), 'utf8')
-}
+import { readJson, writeJson } from '@/lib/blobDb'
 
 function verifyAdmin(request) {
   const token = request.headers.get('x-admin-token')
@@ -25,7 +9,7 @@ function verifyAdmin(request) {
 }
 
 export async function GET() {
-  const products = readProducts()
+  const products = await readJson('products', [])
   const sorted = [...products].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
   return NextResponse.json(sorted)
 }
@@ -37,7 +21,7 @@ export async function POST(request) {
 
   try {
     const body = await request.json()
-    const products = readProducts()
+    const products = await readJson('products', [])
 
     const newProduct = {
       id: uuidv4(),
@@ -52,10 +36,11 @@ export async function POST(request) {
     }
 
     products.push(newProduct)
-    writeProducts(products)
+    await writeJson('products', products)
 
     return NextResponse.json(newProduct, { status: 201 })
   } catch (err) {
-    return NextResponse.json({ error: 'Failed to create product' }, { status: 500 })
+    console.error('POST /api/products error:', err)
+    return NextResponse.json({ error: 'Failed to create product: ' + err.message }, { status: 500 })
   }
 }

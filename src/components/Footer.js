@@ -1,14 +1,8 @@
 import Link from 'next/link'
-import fs   from 'fs'
-import path from 'path'
+import { readJson } from '@/lib/blobDb'
 
-function getSettings() {
-  try { return JSON.parse(fs.readFileSync(path.join(process.cwd(),'data/settings.json'),'utf8')) }
-  catch { return { instagramUrl:'https://instagram.com', tiktokUrl:'https://tiktok.com' } }
-}
-
-export default function Footer() {
-  const s = getSettings()
+export default async function Footer() {
+  const s = await readJson('settings', { instagramUrl: '', tiktokUrl: '' })
 
   return (
     <footer className="bg-emf-black text-emf-ivory">
@@ -42,14 +36,18 @@ export default function Footer() {
           <div>
             <p className="font-display text-[10px] tracking-[0.3em] uppercase text-emf-pink mb-5">Follow</p>
             <div className="flex flex-col gap-3">
-              <a href={s.instagramUrl} target="_blank" rel="noopener noreferrer"
-                className="font-display text-sm text-emf-ivory/60 hover:text-emf-pink transition-colors">
-                Instagram ↗
-              </a>
-              <a href={s.tiktokUrl} target="_blank" rel="noopener noreferrer"
-                className="font-display text-sm text-emf-ivory/60 hover:text-emf-pink transition-colors">
-                TikTok ↗
-              </a>
+              {s.instagramUrl && (
+                <a href={s.instagramUrl} target="_blank" rel="noopener noreferrer"
+                  className="font-display text-sm text-emf-ivory/60 hover:text-emf-pink transition-colors">
+                  Instagram ↗
+                </a>
+              )}
+              {s.tiktokUrl && (
+                <a href={s.tiktokUrl} target="_blank" rel="noopener noreferrer"
+                  className="font-display text-sm text-emf-ivory/60 hover:text-emf-pink transition-colors">
+                  TikTok ↗
+                </a>
+              )}
             </div>
           </div>
         </div>

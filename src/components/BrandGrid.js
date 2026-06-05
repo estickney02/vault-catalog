@@ -1,17 +1,10 @@
 import Link  from 'next/link'
 import Image from 'next/image'
-import fs    from 'fs'
-import path  from 'path'
+import { readJson } from '@/lib/blobDb'
 
-function getBrands() {
-  try {
-    const brands = JSON.parse(fs.readFileSync(path.join(process.cwd(),'data/brands.json'),'utf8'))
-    return brands.filter(b => b.active)
-  } catch { return [] }
-}
-
-export default function BrandGrid() {
-  const brands = getBrands()
+export default async function BrandGrid() {
+  const all    = await readJson('brands', [])
+  const brands = all.filter(b => b.active)
   if (!brands.length) return null
 
   return (
@@ -29,12 +22,9 @@ export default function BrandGrid() {
               href={`/shop?brand=${encodeURIComponent(brand.name)}`}
               className="group relative aspect-[4/3] overflow-hidden bg-emf-black hover:bg-zinc-900 shadow-card hover:shadow-card-hover hover:scale-[1.02] transition-all duration-300"
             >
-              {/* If brand has a cover image, show it dimmed */}
               {brand.image && (
                 <Image src={brand.image} alt={brand.name} fill sizes="(max-width:640px) 50vw,25vw" className="object-cover opacity-30 group-hover:opacity-20 transition-opacity duration-500" />
               )}
-
-              {/* Text */}
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 p-4 text-center">
                 <p className="font-display font-semibold text-sm md:text-base tracking-[0.18em] uppercase text-emf-pink group-hover:text-emf-pink-lt transition-colors">
                   {brand.name}

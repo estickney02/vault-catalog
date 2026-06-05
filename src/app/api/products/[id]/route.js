@@ -1,20 +1,5 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
-
-const DB_PATH = path.join(process.cwd(), 'data/products.json')
-
-function readProducts() {
-  try {
-    return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'))
-  } catch {
-    return []
-  }
-}
-
-function writeProducts(products) {
-  fs.writeFileSync(DB_PATH, JSON.stringify(products, null, 2), 'utf8')
-}
+import { readJson, writeJson } from '@/lib/blobDb'
 
 function verifyAdmin(request) {
   const token = request.headers.get('x-admin-token')
@@ -23,7 +8,7 @@ function verifyAdmin(request) {
 }
 
 export async function GET(request, { params }) {
-  const products = readProducts()
+  const products = await readJson('products', [])
   const product = products.find((p) => p.id === params.id)
   if (!product) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   return NextResponse.json(product)
@@ -36,7 +21,7 @@ export async function PUT(request, { params }) {
 
   try {
     const body = await request.json()
-    const products = readProducts()
+    const products = await readJson('products', [])
     const index = products.findIndex((p) => p.id === params.id)
     if (index === -1) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
@@ -51,10 +36,10 @@ export async function PUT(request, { params }) {
       featured: body.featured ?? products[index].featured,
     }
 
-    writeProducts(products)
+    await writeJson('products', products)
     return NextResponse.json(products[index])
-  } catch {
-    return NextResponse.json({ error: 'Failed to update product' }, { status: 500 })
+  } catch (err) {
+    return NextResponse.json({ error: 'Failed to update product: ' + err.message }, { status: 500 })
   }
 }
 
@@ -63,11 +48,11 @@ export async function DELETE(request, { params }) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const products = readProducts()
+  const products = await readJson('products', [])
   const filtered = products.filter((p) => p.id !== params.id)
   if (filtered.length === products.length) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
-  writeProducts(filtered)
+  await writeJson('products', filtered)
   return NextResponse.json({ success: true })
 }

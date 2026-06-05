@@ -1,24 +1,23 @@
 import { notFound } from 'next/navigation'
 import Link           from 'next/link'
-import fs             from 'fs'
-import path           from 'path'
 import ImageCarousel  from '@/components/ImageCarousel'
+import { readJson }   from '@/lib/blobDb'
 
-function getProduct(id) {
-  try {
-    const all = JSON.parse(fs.readFileSync(path.join(process.cwd(),'data/products.json'),'utf8'))
-    return all.find(p => p.id === id) || null
-  } catch { return null }
+export const revalidate = 0
+
+async function getProduct(id) {
+  const all = await readJson('products', [])
+  return all.find(p => p.id === id) || null
 }
 
 export async function generateMetadata({ params }) {
-  const p = getProduct(params.id)
+  const p = await getProduct(params.id)
   if (!p) return { title: 'Not Found — EMONEY FINDS' }
   return { title: `${p.name} — EMONEY FINDS`, description: p.description }
 }
 
-export default function ProductPage({ params }) {
-  const product = getProduct(params.id)
+export default async function ProductPage({ params }) {
+  const product = await getProduct(params.id)
   if (!product) notFound()
 
   return (
