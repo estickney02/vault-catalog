@@ -32,7 +32,10 @@ export async function POST(request) {
       }
 
       const filename = `uploads/${uuid()}${ext}`
-      const blob     = await put(filename, file, { access: 'public' })
+      const blob     = await put(filename, file, {
+        access: 'public',
+        token: process.env.EMONEY_BLOB_READ_WRITE_TOKEN,
+      })
       savedPaths.push(blob.url)
     }
 
