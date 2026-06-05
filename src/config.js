@@ -1,14 +1,9 @@
-// ============================================================
-//  EMONEYFINDS — Site Configuration
-//  Update these values with your actual links
-// ============================================================
+// Central config — fallbacks only. Real values live in data/settings.json
+export const DEFAULT_KAKOBUY_LINK = 'https://ikako.vip/r/EMONEYFINDS'
+export const SITE_NAME            = 'EMONEY FINDS'
+export const TAGLINE              = 'All the looks. None of the search.'
 
-// Your KakoBuy affiliate REGISTRATION link
-// This is the link people use to CREATE their KakoBuy account through you
-export const KAKOBUY_REGISTER_URL = 'https://ikako.vip/r/EMONEYFINDS'
-
-// Your KakoBuy affiliate SHOP link (for general browsing)
-export const KAKOBUY_SHOP_URL = 'https://www.kakobuy.com'
-
-// Site name
-export const SITE_NAME = 'EMONEYFINDS'
+export const CLOTHING_TYPES = [
+  'Tops', 'Bottoms', 'Hoodies', 'Dresses',
+  'Outerwear', 'Bags', 'Shoes', 'Accessories', 'Jewelry',
+]

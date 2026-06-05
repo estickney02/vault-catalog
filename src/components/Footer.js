@@ -1,69 +1,63 @@
 import Link from 'next/link'
+import fs   from 'fs'
+import path from 'path'
+
+function getSettings() {
+  try { return JSON.parse(fs.readFileSync(path.join(process.cwd(),'data/settings.json'),'utf8')) }
+  catch { return { instagramUrl:'https://instagram.com', tiktokUrl:'https://tiktok.com' } }
+}
 
 export default function Footer() {
+  const s = getSettings()
+
   return (
-    <footer className="bg-v-dark border-t border-v-border mt-24">
+    <footer className="bg-emf-black text-emf-ivory">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+
           {/* Brand */}
           <div>
-            <Link
-              href="/"
-              className="text-xl font-bold tracking-[0.3em] text-v-text hover:text-v-gold transition-colors"
-            >
-              EMONEYFINDS
+            <Link href="/" className="font-script text-3xl text-emf-ivory hover:text-emf-pink transition-colors leading-none block mb-4">
+              Emoney Finds
             </Link>
-            <p className="mt-3 text-v-muted text-sm leading-relaxed">
-              The finds are here.
-              <br />
-              Hand-picked designer reps and quality finds, all in one place.
+            <p className="font-display text-emf-ivory/50 text-sm leading-relaxed">
+              All the looks. None of the search.
             </p>
           </div>
 
-          {/* Navigation */}
+          {/* Nav */}
           <div>
-            <p className="section-label mb-4">Navigate</p>
+            <p className="font-display text-[10px] tracking-[0.3em] uppercase text-emf-pink mb-5">Navigate</p>
             <div className="flex flex-col gap-3">
-              <Link href="/" className="text-sm link-gold">
-                Home
-              </Link>
-              <Link href="/shop" className="text-sm link-gold">
-                Shop All
-              </Link>
+              {['/', '/shop', '/#categories', '/#how-it-works'].map((href, i) => (
+                <Link key={href} href={href}
+                  className="font-display text-sm text-emf-ivory/60 hover:text-emf-pink transition-colors">
+                  {['Home','Shop','Categories','How It Works'][i]}
+                </Link>
+              ))}
             </div>
           </div>
 
           {/* Social */}
           <div>
-            <p className="section-label mb-4">Follow</p>
+            <p className="font-display text-[10px] tracking-[0.3em] uppercase text-emf-pink mb-5">Follow</p>
             <div className="flex flex-col gap-3">
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm link-gold"
-              >
+              <a href={s.instagramUrl} target="_blank" rel="noopener noreferrer"
+                className="font-display text-sm text-emf-ivory/60 hover:text-emf-pink transition-colors">
                 Instagram ↗
               </a>
-              <a
-                href="https://tiktok.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm link-gold"
-              >
+              <a href={s.tiktokUrl} target="_blank" rel="noopener noreferrer"
+                className="font-display text-sm text-emf-ivory/60 hover:text-emf-pink transition-colors">
                 TikTok ↗
               </a>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-v-border pt-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <p className="text-v-muted text-xs">
-            © {new Date().getFullYear()} EMONEYFINDS. All rights reserved.
-          </p>
-          <p className="text-v-muted text-xs max-w-md text-right leading-relaxed">
-            Some links on this site are affiliate links. We may earn a commission at no extra cost to
-            you.
+        <div className="border-t border-emf-ivory/10 pt-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <p className="font-display text-emf-ivory/30 text-xs">© 2025 EMONEY FINDS. All rights reserved.</p>
+          <p className="font-display text-emf-ivory/30 text-xs max-w-sm md:text-right leading-relaxed">
+            Affiliate Disclosure: Links on this site are KakoBuy affiliate links. We may earn a commission at no cost to you.
           </p>
         </div>
       </div>

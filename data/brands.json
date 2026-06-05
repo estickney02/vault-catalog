@@ -1,0 +1,6 @@
+[
+  { "id": "b1", "name": "Supreme",      "description": "Streetwear",   "image": "", "active": true },
+  { "id": "b2", "name": "Chanel",       "description": "Luxury",        "image": "", "active": true },
+  { "id": "b3", "name": "Acne Studios", "description": "Contemporary",  "image": "", "active": true },
+  { "id": "b4", "name": "Alo",          "description": "Activewear",    "image": "", "active": true }
+]

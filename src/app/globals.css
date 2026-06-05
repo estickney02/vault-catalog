@@ -3,65 +3,73 @@
 @tailwind utilities;
 
 :root {
-  --font-inter: 'Inter', system-ui, sans-serif;
+  --font-pinyon:   'Pinyon Script', cursive;
+  --font-playfair: 'Playfair Display', Georgia, serif;
 }
 
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
-  background-color: #0a0a0a;
-  color: #f5f5f5;
-  font-family: var(--font-inter);
+  background-color: #FAF7F2;
+  color: #0a0a0a;
+  font-family: var(--font-playfair);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #111111;
-}
-::-webkit-scrollbar-thumb {
-  background: #333333;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #C9A84C;
-}
+/* ── Scrollbar ─────────────────────────────── */
+::-webkit-scrollbar       { width: 5px; }
+::-webkit-scrollbar-track { background: #FAF7F2; }
+::-webkit-scrollbar-thumb { background: #F2A7BB; border-radius: 3px; }
 
-/* Gold underline on links */
+/* ── Utility classes ───────────────────────── */
 @layer components {
-  .link-gold {
-    @apply text-v-muted hover:text-v-gold transition-colors duration-200;
+
+  /* Buttons */
+  .btn-black {
+    @apply bg-emf-black text-white text-xs tracking-[0.2em] uppercase
+           px-7 py-3 hover:bg-zinc-800 transition-colors duration-200;
+  }
+  .btn-pink {
+    @apply bg-emf-pink text-white text-xs tracking-[0.2em] uppercase
+           px-7 py-3 hover:bg-emf-pink-dk transition-colors duration-200;
+  }
+  .btn-outline {
+    @apply border border-emf-black text-emf-black text-xs tracking-[0.2em] uppercase
+           px-7 py-3 hover:bg-emf-black hover:text-white transition-all duration-200;
+  }
+  .btn-outline-pink {
+    @apply border border-emf-pink text-emf-pink text-xs tracking-[0.2em] uppercase
+           px-7 py-3 hover:bg-emf-pink hover:text-white transition-all duration-200;
   }
 
-  .btn-gold {
-    @apply bg-v-gold text-v-black font-semibold px-6 py-3 text-sm tracking-widest uppercase hover:bg-v-gold-light transition-colors duration-200;
+  /* Tags / pills */
+  .pill-pink {
+    @apply bg-emf-pink/20 text-emf-pink-dk text-[10px] tracking-widest
+           uppercase px-3 py-1 rounded-full font-display font-medium;
+  }
+  .pill-gray {
+    @apply bg-emf-surface text-emf-muted text-[10px] tracking-widest
+           uppercase px-3 py-1 rounded-full;
   }
 
-  .btn-outline-gold {
-    @apply border border-v-gold text-v-gold font-semibold px-6 py-3 text-sm tracking-widest uppercase hover:bg-v-gold hover:text-v-black transition-all duration-200;
+  /* Section label */
+  .section-eyebrow {
+    @apply text-emf-pink text-xs tracking-[0.35em] uppercase font-display font-semibold;
   }
 
-  .card-surface {
-    @apply bg-v-surface border border-v-border;
+  /* Card */
+  .product-card {
+    @apply bg-emf-white shadow-card hover:shadow-card-hover
+           transition-shadow duration-300 overflow-hidden;
   }
 
-  .section-label {
-    @apply text-xs tracking-[0.3em] uppercase text-v-gold font-medium;
+  /* Admin input */
+  .admin-input {
+    @apply w-full border border-emf-border bg-white text-emf-black
+           text-sm px-4 py-3 focus:outline-none focus:border-emf-pink
+           transition-colors font-display;
   }
-}
-
-/* Image placeholder gradient */
-.img-placeholder {
-  background: linear-gradient(135deg, #1a1a1a 0%, #222222 50%, #1a1a1a 100%);
-}
-
-/* Marquee pause on hover */
-.marquee-container:hover .marquee-track {
-  animation-play-state: paused;
+  .admin-label {
+    @apply block text-xs tracking-[0.2em] uppercase text-emf-muted mb-2 font-display;
+  }
 }

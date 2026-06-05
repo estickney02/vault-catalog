@@ -1,182 +1,92 @@
-import Link from 'next/link'
-import fs from 'fs'
-import path from 'path'
-import Marquee from '@/components/Marquee'
-import ProductCard from '@/components/ProductCard'
-import RegisterSection from '@/components/RegisterSection'
-import { KAKOBUY_REGISTER_URL } from '@/config'
+import Link          from 'next/link'
+import fs            from 'fs'
+import path          from 'path'
+import Marquee       from '@/components/Marquee'
+import ProductCard   from '@/components/ProductCard'
+import HeroCarousel  from '@/components/HeroCarousel'
+import HowItWorks    from '@/components/HowItWorks'
+import CategoryGrid  from '@/components/CategoryGrid'
+import BrandGrid     from '@/components/BrandGrid'
 
-const CATEGORIES = [
-  'Tops',
-  'Bottoms',
-  'Dresses',
-  'Outerwear',
-  'Bags',
-  'Shoes',
-  'Accessories',
-  'Jewelry',
-]
-
-async function getProducts() {
-  try {
-    const filePath = path.join(process.cwd(), 'data/products.json')
-    return JSON.parse(fs.readFileSync(filePath, 'utf8'))
-  } catch {
-    return []
-  }
+function getProducts() {
+  try { return JSON.parse(fs.readFileSync(path.join(process.cwd(),'data/products.json'),'utf8')) }
+  catch { return [] }
 }
 
-export default async function HomePage() {
-  const allProducts = await getProducts()
-  const sorted = [...allProducts].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-  const newArrivals = sorted.slice(0, 6)
-  const brands = [...new Set(allProducts.map((p) => p.brand).filter(Boolean))]
+export default function HomePage() {
+  const all        = getProducts()
+  const sorted     = [...all].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))
+  const featured   = all.filter(p => p.featured).slice(0, 8)
+  const newArrivals = sorted.slice(0, 8)
 
   return (
-    <div className="pt-16">
-      {/* Hero */}
-      <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-4 text-center overflow-hidden">
-        {/* Subtle grid background */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage:
-              'linear-gradient(#f5f5f5 1px, transparent 1px), linear-gradient(90deg, #f5f5f5 1px, transparent 1px)',
-            backgroundSize: '60px 60px',
-          }}
-        />
+    <div>
+      {/* ── HERO ────────────────────────────────── */}
+      <section className="bg-emf-ivory pt-12 pb-0 px-4 text-center">
+        <div className="max-w-4xl mx-auto mb-10">
+          <p className="section-eyebrow mb-4">KakoBuy Curated</p>
 
-        {/* Gold accent line */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-24 bg-gradient-to-b from-transparent to-v-gold/60" />
-
-        <div className="relative z-10 flex flex-col items-center gap-6 max-w-4xl">
-          <p className="section-label">Est. 2024</p>
-
-          <h1 className="text-[clamp(4rem,15vw,10rem)] font-bold tracking-[0.15em] leading-none text-v-text">
-            EMONEYFINDS
+          <h1 className="font-script leading-none text-emf-black mb-2" style={{fontSize:'clamp(3.5rem,10vw,7rem)'}}>
+            The Finds.
+          </h1>
+          <h1 className="font-script leading-none text-emf-black mb-6" style={{fontSize:'clamp(3.5rem,10vw,7rem)'}}>
+            Curated.
           </h1>
 
-          <p className="text-v-muted text-lg md:text-xl tracking-widest font-light uppercase">
-            The finds are here.
+          <p className="font-display text-emf-muted text-base md:text-lg mb-8 max-w-md mx-auto leading-relaxed">
+            Premium finds, organized so you can actually shop.
           </p>
 
-          <p className="text-v-muted/60 text-sm max-w-sm leading-relaxed mt-2">
-            Hand-selected designer reps and quality finds — every piece reviewed before it makes the
-            cut.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 mt-4">
-            <Link href="/shop" className="btn-gold">
-              Shop the Catalog
-            </Link>
-            <a
-              href={KAKOBUY_REGISTER_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-outline-gold text-center"
-            >
-              Register on KakoBuy
-            </a>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/shop" className="btn-black">Shop All Finds</Link>
+            <Link href="/#how-it-works" className="btn-outline">How It Works</Link>
           </div>
-          <p className="text-v-muted/50 text-xs mt-2 tracking-wide">
-            New to KakoBuy? Register free through our link to support EMONEYFINDS.
-          </p>
         </div>
 
-        {/* Bottom fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-v-black to-transparent" />
+        {/* Carousel */}
+        <HeroCarousel products={featured.length ? featured : newArrivals.slice(0,6)} />
       </section>
 
-      {/* Marquee */}
+      {/* ── MARQUEE DIVIDER ─────────────────────── */}
       <Marquee />
 
-      {/* Register CTA — primary revenue driver */}
-      <RegisterSection />
-
-      {/* New Arrivals */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div className="flex items-end justify-between mb-12">
-          <div>
-            <p className="section-label mb-2">Just Dropped</p>
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">New Arrivals</h2>
-          </div>
-          <Link
-            href="/shop"
-            className="text-sm tracking-widest uppercase link-gold hidden sm:block"
-          >
-            View All →
-          </Link>
-        </div>
-
-        {newArrivals.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-v-border">
-            {newArrivals.map((product) => (
-              <div key={product.id} className="bg-v-black">
-                <ProductCard product={product} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-24 text-v-muted">
-            <p className="text-sm tracking-widest uppercase">No products yet</p>
-            <p className="mt-2 text-xs">Add products in the admin dashboard.</p>
-          </div>
-        )}
-
-        <div className="mt-8 text-center sm:hidden">
-          <Link href="/shop" className="btn-outline-gold inline-block">
-            View All
-          </Link>
-        </div>
-      </section>
-
-      {/* Category tiles */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
-        <div className="mb-12">
-          <p className="section-label mb-2">Browse by Category</p>
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Shop by Type</h2>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-v-border">
-          {CATEGORIES.map((cat) => (
-            <Link
-              key={cat}
-              href={`/shop?type=${encodeURIComponent(cat)}`}
-              className="group relative bg-v-surface aspect-square flex items-center justify-center hover:bg-v-gold/5 transition-colors duration-300"
-            >
-              <div className="text-center">
-                <p className="text-sm font-semibold tracking-[0.2em] uppercase text-v-text group-hover:text-v-gold transition-colors duration-200">
-                  {cat}
-                </p>
-                <div className="mt-2 w-6 h-px bg-v-gold/30 mx-auto group-hover:bg-v-gold group-hover:w-10 transition-all duration-300" />
-              </div>
-              <div className="absolute inset-0 border border-transparent group-hover:border-v-gold/20 transition-all duration-300" />
+      {/* ── NEW ARRIVALS ────────────────────────── */}
+      <section className="bg-emf-ivory py-24 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-end justify-between mb-12">
+            <div>
+              <p className="section-eyebrow mb-2">Just Dropped</p>
+              <h2 className="font-script text-5xl md:text-6xl text-emf-black leading-none">New Arrivals</h2>
+            </div>
+            <Link href="/shop" className="font-display text-xs tracking-[0.2em] uppercase text-emf-muted hover:text-emf-pink-dk transition-colors hidden sm:block">
+              View All →
             </Link>
-          ))}
+          </div>
+
+          {newArrivals.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {newArrivals.map(p => <ProductCard key={p.id} product={p} />)}
+            </div>
+          ) : (
+            <div className="text-center py-20 text-emf-muted font-display text-sm tracking-widest uppercase">
+              No products yet — add some from the admin dashboard.
+            </div>
+          )}
+
+          <div className="text-center mt-10">
+            <Link href="/shop" className="btn-outline">View All Finds</Link>
+          </div>
         </div>
       </section>
 
-      {/* Brand tiles */}
-      {brands.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
-          <div className="mb-12">
-            <p className="section-label mb-2">Browse by Brand</p>
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Brands</h2>
-          </div>
+      {/* ── HOW IT WORKS ────────────────────────── */}
+      <HowItWorks />
 
-          <div className="flex flex-wrap gap-3">
-            {brands.map((brand) => (
-              <Link
-                key={brand}
-                href={`/shop?brand=${encodeURIComponent(brand)}`}
-                className="group border border-v-border hover:border-v-gold px-5 py-3 text-sm tracking-[0.15em] uppercase text-v-muted hover:text-v-gold transition-all duration-200"
-              >
-                {brand}
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+      {/* ── CATEGORIES ──────────────────────────── */}
+      <CategoryGrid />
+
+      {/* ── BRANDS ──────────────────────────────── */}
+      <BrandGrid />
     </div>
   )
 }

@@ -3,148 +3,93 @@
 import { useState, useEffect, useMemo, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import ProductCard from '@/components/ProductCard'
-
-const CLOTHING_TYPES = [
-  'Tops',
-  'Bottoms',
-  'Dresses',
-  'Outerwear',
-  'Bags',
-  'Shoes',
-  'Accessories',
-  'Jewelry',
-]
+import { CLOTHING_TYPES } from '@/config'
 
 function ShopContent() {
-  const searchParams = useSearchParams()
-  const [products, setProducts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState('')
-  const [filterType, setFilterType] = useState(searchParams.get('type') || '')
-  const [filterBrand, setFilterBrand] = useState(searchParams.get('brand') || '')
+  const searchParams               = useSearchParams()
+  const [products, setProducts]   = useState([])
+  const [loading, setLoading]     = useState(true)
+  const [search,  setSearch]      = useState('')
+  const [filterType,  setType]    = useState(searchParams.get('type')  || '')
+  const [filterBrand, setBrand]   = useState(searchParams.get('brand') || '')
 
   useEffect(() => {
-    fetch('/api/products')
-      .then((r) => r.json())
-      .then((data) => {
-        setProducts(data)
-        setLoading(false)
-      })
-      .catch(() => setLoading(false))
+    fetch('/api/products').then(r => r.json()).then(d => { setProducts(d); setLoading(false) }).catch(() => setLoading(false))
   }, [])
 
-  const brands = useMemo(
-    () => [...new Set(products.map((p) => p.brand).filter(Boolean))].sort(),
-    [products]
-  )
+  const brands = useMemo(() => [...new Set(products.map(p => p.brand).filter(Boolean))].sort(), [products])
 
-  const filtered = useMemo(() => {
-    return products.filter((p) => {
-      const matchesSearch =
-        !search ||
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
-        (p.description && p.description.toLowerCase().includes(search.toLowerCase()))
-      const matchesType = !filterType || p.type === filterType
-      const matchesBrand = !filterBrand || p.brand === filterBrand
-      return matchesSearch && matchesType && matchesBrand
-    })
-  }, [products, search, filterType, filterBrand])
+  const filtered = useMemo(() => products.filter(p => {
+    const q = search.toLowerCase()
+    return (
+      (!search || p.name.toLowerCase().includes(q) || (p.description||'').toLowerCase().includes(q)) &&
+      (!filterType  || p.type  === filterType) &&
+      (!filterBrand || p.brand === filterBrand)
+    )
+  }), [products, search, filterType, filterBrand])
+
+  const hasFilters = search || filterType || filterBrand
 
   return (
-    <div className="pt-16 min-h-screen">
-      {/* Page header */}
-      <div className="border-b border-v-border bg-v-dark">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <p className="section-label mb-2">All Products</p>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">The Catalog</h1>
-          <p className="text-v-muted mt-3 text-sm">
-            {loading ? '—' : `${filtered.length} item${filtered.length !== 1 ? 's' : ''}`}
-          </p>
-        </div>
+    <div className="min-h-screen bg-emf-ivory">
+      {/* Header */}
+      <div className="bg-emf-white border-b border-emf-border py-14 px-4 text-center">
+        <p className="section-eyebrow mb-3">The Collection</p>
+        <h1 className="font-script text-6xl md:text-7xl text-emf-black leading-none">Emoney Finds</h1>
+        <p className="font-display text-emf-muted text-sm mt-3">
+          {loading ? '—' : `${filtered.length} item${filtered.length !== 1 ? 's' : ''}`}
+        </p>
       </div>
 
       {/* Filter bar */}
-      <div className="sticky top-16 z-30 bg-v-dark/95 backdrop-blur-sm border-b border-v-border">
+      <div className="sticky top-16 z-30 bg-emf-white border-b border-emf-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row gap-3">
-          {/* Search */}
           <input
-            type="text"
+            type="text" value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Search products..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 bg-v-surface border border-v-border text-v-text placeholder-v-muted text-sm px-4 py-2.5 focus:outline-none focus:border-v-gold transition-colors"
+            className="flex-1 border border-emf-border bg-emf-ivory font-display text-sm px-4 py-2.5 focus:outline-none focus:border-emf-pink transition-colors placeholder:text-emf-muted"
           />
-
-          {/* Type filter */}
-          <select
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-            className="bg-v-surface border border-v-border text-v-text text-sm px-4 py-2.5 focus:outline-none focus:border-v-gold transition-colors cursor-pointer sm:w-48"
-          >
+          <select value={filterType} onChange={e => setType(e.target.value)}
+            className="border border-emf-border bg-emf-ivory font-display text-sm px-4 py-2.5 focus:outline-none focus:border-emf-pink transition-colors sm:w-44 cursor-pointer">
             <option value="">All Types</option>
-            {CLOTHING_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
+            {CLOTHING_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
-
-          {/* Brand filter */}
-          <select
-            value={filterBrand}
-            onChange={(e) => setFilterBrand(e.target.value)}
-            className="bg-v-surface border border-v-border text-v-text text-sm px-4 py-2.5 focus:outline-none focus:border-v-gold transition-colors cursor-pointer sm:w-48"
-          >
+          <select value={filterBrand} onChange={e => setBrand(e.target.value)}
+            className="border border-emf-border bg-emf-ivory font-display text-sm px-4 py-2.5 focus:outline-none focus:border-emf-pink transition-colors sm:w-44 cursor-pointer">
             <option value="">All Brands</option>
-            {brands.map((b) => (
-              <option key={b} value={b}>
-                {b}
-              </option>
-            ))}
+            {brands.map(b => <option key={b} value={b}>{b}</option>)}
           </select>
-
-          {/* Clear */}
-          {(search || filterType || filterBrand) && (
-            <button
-              onClick={() => {
-                setSearch('')
-                setFilterType('')
-                setFilterBrand('')
-              }}
-              className="text-xs tracking-widest uppercase text-v-muted hover:text-v-gold transition-colors px-3 border border-v-border hover:border-v-gold whitespace-nowrap"
-            >
+          {hasFilters && (
+            <button onClick={() => { setSearch(''); setType(''); setBrand('') }}
+              className="font-display text-xs tracking-widest uppercase text-emf-muted hover:text-emf-pink-dk border border-emf-border px-4 transition-colors whitespace-nowrap">
               Clear
             </button>
           )}
         </div>
       </div>
 
-      {/* Product grid */}
+      {/* Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-v-border">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="bg-v-black">
-                <div className="aspect-[3/4] img-placeholder animate-pulse" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {Array.from({length:6}).map((_,i) => (
+              <div key={i} className="bg-white shadow-card overflow-hidden">
+                <div className="aspect-square bg-emf-surface animate-pulse" />
                 <div className="p-4 space-y-3">
-                  <div className="h-4 bg-v-surface animate-pulse w-3/4" />
-                  <div className="h-3 bg-v-surface animate-pulse w-1/2" />
+                  <div className="h-3 bg-emf-surface animate-pulse w-1/3 rounded-full" />
+                  <div className="h-4 bg-emf-surface animate-pulse w-2/3" />
                 </div>
               </div>
             ))}
           </div>
         ) : filtered.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-v-border">
-            {filtered.map((product) => (
-              <div key={product.id} className="bg-v-black">
-                <ProductCard product={product} />
-              </div>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filtered.map(p => <ProductCard key={p.id} product={p} />)}
           </div>
         ) : (
-          <div className="text-center py-32 text-v-muted">
+          <div className="text-center py-32 font-display text-emf-muted">
             <p className="text-sm tracking-widest uppercase">No products found</p>
-            <p className="mt-2 text-xs">Try adjusting your filters or search term.</p>
+            <p className="mt-2 text-xs">Try adjusting your filters.</p>
           </div>
         )}
       </div>
@@ -154,7 +99,7 @@ function ShopContent() {
 
 export default function ShopPage() {
   return (
-    <Suspense fallback={<div className="pt-16 min-h-screen flex items-center justify-center text-v-muted text-sm tracking-widest uppercase">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-emf-ivory flex items-center justify-center font-display text-sm tracking-widest text-emf-muted uppercase">Loading...</div>}>
       <ShopContent />
     </Suspense>
   )

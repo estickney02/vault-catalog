@@ -8,26 +8,35 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'v-black': '#0a0a0a',
-        'v-dark': '#111111',
-        'v-surface': '#1a1a1a',
-        'v-border': '#222222',
-        'v-gold': '#C9A84C',
-        'v-gold-light': '#E8C96A',
-        'v-text': '#f5f5f5',
-        'v-muted': '#888888',
+        'emf-ivory':    '#FAF7F2',
+        'emf-white':    '#FFFFFF',
+        'emf-black':    '#0a0a0a',
+        'emf-pink':     '#F2A7BB',
+        'emf-pink-lt':  '#F8C9D6',
+        'emf-pink-dk':  '#E0789A',
+        'emf-muted':    '#888888',
+        'emf-border':   '#E8E0D8',
+        'emf-surface':  '#F5F0EA',
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        script:   ['var(--font-pinyon)',    'cursive'],
+        display:  ['var(--font-playfair)',  'Georgia', 'serif'],
+        sans:     ['var(--font-playfair)',  'Georgia', 'serif'],
       },
       animation: {
-        marquee: 'marquee 35s linear infinite',
+        'marquee-slow': 'marquee 40s linear infinite',
+        'marquee-fast': 'marquee 25s linear infinite',
+        'marquee':      'marquee 35s linear infinite',
       },
       keyframes: {
         marquee: {
-          '0%': { transform: 'translateX(0)' },
+          '0%':   { transform: 'translateX(0)' },
           '100%': { transform: 'translateX(-50%)' },
         },
+      },
+      boxShadow: {
+        'card': '0 2px 20px rgba(0,0,0,0.07)',
+        'card-hover': '0 6px 30px rgba(0,0,0,0.12)',
       },
     },
   },
