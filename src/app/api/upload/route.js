@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
-import { v4 as uuidv4 } from 'uuid'
+import { put }          from '@vercel/blob'
+import path             from 'path'
+import { v4 as uuid }  from 'uuid'
 
-function verifyAdmin(request) {
-  const token = request.headers.get('x-admin-token')
-  const validToken = process.env.ADMIN_SESSION_TOKEN || 'vault_session_abc123'
-  return token === validToken
+function verifyAdmin(req) {
+  return req.headers.get('x-admin-token') === (process.env.ADMIN_SESSION_TOKEN || 'vault_session_abc123')
 }
 
 export async function POST(request) {
@@ -16,40 +14,31 @@ export async function POST(request) {
 
   try {
     const formData = await request.formData()
-    const files = formData.getAll('images')
+    const files    = formData.getAll('images')
 
     if (!files || files.length === 0) {
       return NextResponse.json({ error: 'No files provided' }, { status: 400 })
     }
 
-    const uploadDir = path.join(process.cwd(), 'public/uploads')
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true })
-    }
-
-    const savedPaths = []
+    const allowedExts = ['.jpg', '.jpeg', '.png', '.webp', '.gif']
+    const savedPaths  = []
 
     for (const file of files) {
       if (!file || typeof file === 'string') continue
 
-      const buffer = Buffer.from(await file.arrayBuffer())
-      const originalName = file.name || 'upload'
-      const ext = path.extname(originalName).toLowerCase() || '.jpg'
-      const allowedExts = ['.jpg', '.jpeg', '.png', '.webp', '.gif']
-
+      const ext = path.extname(file.name || '').toLowerCase() || '.jpg'
       if (!allowedExts.includes(ext)) {
         return NextResponse.json({ error: `File type ${ext} not allowed` }, { status: 400 })
       }
 
-      const filename = `${uuidv4()}${ext}`
-      const filepath = path.join(uploadDir, filename)
-      fs.writeFileSync(filepath, buffer)
-      savedPaths.push(`/uploads/${filename}`)
+      const filename = `uploads/${uuid()}${ext}`
+      const blob     = await put(filename, file, { access: 'public' })
+      savedPaths.push(blob.url)
     }
 
     return NextResponse.json({ paths: savedPaths })
   } catch (err) {
     console.error('Upload error:', err)
-    return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
+    return NextResponse.json({ error: 'Upload failed: ' + err.message }, { status: 500 })
   }
 }
