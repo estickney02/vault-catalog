@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { CLOTHING_TYPES } from '@/config'
 
 /* ─── helpers ─────────────────────────────────────── */
-const EMPTY_PRODUCT = { name:'', brand:'', type:'', description:'', link:'', images:[], featured:false }
+const EMPTY_PRODUCT = { name:'', brand:'', type:'', price:'', description:'', link:'', images:[], featured:false }
 const EMPTY_BRAND   = { name:'', description:'', image:'', active:true }
 
 function Toast({ msg, isError, onDone }) {
@@ -42,7 +42,7 @@ function ProductsTab({ token }) {
   useEffect(() => { if (token) load() }, [token])
 
   const openNew  = () => { setForm(EMPTY_PRODUCT); setEditId(null); setShowForm(true); window.scrollTo({top:0,behavior:'smooth'}) }
-  const openEdit = (p) => { setForm({name:p.name,brand:p.brand,type:p.type,description:p.description,link:p.link,images:p.images||[],featured:p.featured||false}); setEditId(p.id); setShowForm(true); window.scrollTo({top:0,behavior:'smooth'}) }
+  const openEdit = (p) => { setForm({name:p.name,brand:p.brand,type:p.type,price:p.price||'',description:p.description,link:p.link,images:p.images||[],featured:p.featured||false}); setEditId(p.id); setShowForm(true); window.scrollTo({top:0,behavior:'smooth'}) }
   const cancel   = () => { setShowForm(false); setEditId(null); setForm(EMPTY_PRODUCT) }
 
   const uploadImages = async (e) => {
@@ -106,9 +106,13 @@ function ProductsTab({ token }) {
                 {CLOTHING_TYPES.map(t => <option key={t}>{t}</option>)}
               </select>
             </div>
-            <div className="md:col-span-2">
+            <div>
               <label className="admin-label">KakoBuy Affiliate Link *</label>
               <input required type="url" value={form.link} onChange={e=>setForm(f=>({...f,link:e.target.value}))} className="admin-input" placeholder="https://www.kakobuy.com/..." />
+            </div>
+            <div>
+              <label className="admin-label">Price (e.g. $42)</label>
+              <input value={form.price} onChange={e=>setForm(f=>({...f,price:e.target.value}))} className="admin-input" placeholder="e.g. $42" />
             </div>
             <div className="md:col-span-2">
               <label className="admin-label">Description</label>

@@ -33,6 +33,9 @@ export default function ProductCard({ product }) {
           className="font-display font-semibold text-sm text-emf-black hover:text-emf-pink-dk transition-colors leading-snug line-clamp-2">
           {product.name}
         </Link>
+        {product.price && (
+          <span className="font-display text-sm font-semibold text-emf-pink-dk">{product.price}</span>
+        )}
         <div className="mt-auto pt-3">
           <a
             href={product.link}

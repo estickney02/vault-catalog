@@ -28,6 +28,7 @@ export async function POST(request) {
       name: body.name || '',
       brand: body.brand || '',
       type: body.type || '',
+      price: body.price || '',
       description: body.description || '',
       link: body.link || '',
       images: body.images || [],

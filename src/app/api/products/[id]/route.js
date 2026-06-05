@@ -30,6 +30,7 @@ export async function PUT(request, { params }) {
       name: body.name ?? products[index].name,
       brand: body.brand ?? products[index].brand,
       type: body.type ?? products[index].type,
+      price: body.price ?? products[index].price ?? '',
       description: body.description ?? products[index].description,
       link: body.link ?? products[index].link,
       images: body.images ?? products[index].images,

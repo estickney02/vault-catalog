@@ -45,6 +45,11 @@ export default async function ProductPage({ params }) {
             {/* Name */}
             <h1 className="font-script text-4xl md:text-5xl text-emf-black leading-tight">{product.name}</h1>
 
+            {/* Price */}
+            {product.price && (
+              <p className="font-display text-2xl font-semibold text-emf-pink-dk">{product.price}</p>
+            )}
+
             {/* Divider */}
             <div className="w-16 h-0.5 bg-emf-pink" />
 
