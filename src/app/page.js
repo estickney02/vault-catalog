@@ -21,31 +21,8 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* ── HERO ────────────────────────────────── */}
-      <section className="bg-emf-ivory pt-12 pb-0 px-4 text-center">
-        <div className="max-w-4xl mx-auto mb-10">
-          <p className="section-eyebrow mb-4">KakoBuy Curated</p>
-
-          <h1 className="font-script leading-none text-emf-black mb-2" style={{fontSize:'clamp(3.5rem,10vw,7rem)'}}>
-            The Finds.
-          </h1>
-          <h1 className="font-script leading-none text-emf-black mb-6" style={{fontSize:'clamp(3.5rem,10vw,7rem)'}}>
-            Curated.
-          </h1>
-
-          <p className="font-display text-emf-muted text-base md:text-lg mb-8 max-w-md mx-auto leading-relaxed">
-            Premium finds, organized so you can actually shop.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/shop" className="btn-black">Shop All Finds</Link>
-            <Link href="/#how-it-works" className="btn-outline">How It Works</Link>
-          </div>
-        </div>
-
-        {/* Carousel */}
-        <HeroCarousel products={featured.length ? featured : newArrivals.slice(0,6)} />
-      </section>
+      {/* ── HERO CAROUSEL ───────────────────────── */}
+      <HeroCarousel products={featured.length ? featured : newArrivals.slice(0,6)} />
 
       {/* ── MARQUEE DIVIDER ─────────────────────── */}
       <Marquee />
