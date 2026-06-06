@@ -479,23 +479,22 @@ function BulkImportTab({ token }) {
   const importAll = async () => {
     setImporting(true); setResult(null)
     const toImport = rows.filter(r => selected[r._id] && !r._error)
-    let success = 0
-    for (const row of toImport) {
-      try {
-        const res = await fetch('/api/products', {
-          method: 'POST',
-          headers: { ...headers, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: row.name, brand: row.brand, type: row.type,
-            description: row.description, link: row.link,
-            images: row.images, price: row.price, featured: row.featured,
-          })
-        })
-        if (res.ok) success++
-      } catch {}
+    try {
+      const res = await fetch('/api/products/bulk', {
+        method: 'POST',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify(toImport.map(row => ({
+          name: row.name, brand: row.brand, type: row.type,
+          description: row.description, link: row.link,
+          images: row.images, price: row.price, featured: row.featured,
+        }))),
+      })
+      const data = await res.json()
+      setResult({ success: data.success || 0, skipped: toImport.length - (data.success || 0) })
+    } catch {
+      setResult({ success: 0, skipped: toImport.length })
     }
     setImporting(false)
-    setResult({ success, skipped: toImport.length - success })
     setRows([]); setSelected({})
   }
 
